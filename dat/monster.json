@@ -1,0 +1,12 @@
+{
+   "name"  : "ork",
+   "color" : "libtcod.light_green",
+   "character" : "o",
+   "danger_level" : 1,
+   "danger_table" : [[80, 1]],
+   "hp" : 20,
+   "defense" : 0,
+   "power" : 4,
+   "xp" : 35,
+   "description" : "Believed to have been created as expendable foot soldiers by some unknown race in the distant past, these dull-witted creatures have since spread to every corner of the known galaxy. Orcs come in a variety of shapes and sizes, but the common variety is about 1 to 1.5 meters tall with gray or greenish skin, and heavy bone structures with protruding ridges around vulnerable areas. Aggressive and prodigious breeders, if left unchecked orcs will overrun their environment and fall to fighting amongst themselves. ",
+}

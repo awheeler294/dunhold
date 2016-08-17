@@ -1,0 +1,43 @@
+
+<mobs>
+   <mob>
+      <name>ork</name>
+      <color>light_green</color>
+      <character>o</character>
+      <ai_type>basic_monster</ai_type>
+      <attributes>
+         <entry></entry>
+      </attributes>
+      <danger_level>1</danger_level>
+      <danger_table>
+         <table_entry odds=60, level=1 />
+      </danger_table>
+      <hp>20</hp>
+      <defense>0</defense>
+      <power>4</power>
+      <xp>35</xp>
+      <description>
+         Believed to have been created as expendable foot soldiers by some unknown race in the distant past, these dull-witted creatures have since spread to every corner of the known galaxy. Orcs come in a variety of shapes and sizes, but the common variety is about 1 to 1.5 meters tall with gray or greenish skin, and heavy bone structures with protruding ridges around vulnerable areas. Aggressive and prodigious breeders, if left unchecked orcs will overrun their environment and fall to fighting amongst themselves.
+      </description>
+   </mob>
+   <mob>
+      <name>varch</name>
+      <color>dark_orange</color>
+      <character>d</character>
+      <ai_type>basic_animal</ai_type>
+      <attributes>
+         <entry>pack_hunter</entry>
+      </attributes>
+      <danger_level>1</danger_level>
+      <danger_table>
+         <table_entry odds=80, level=1 />
+      </danger_table>
+      <hp>15</hp>
+      <defense>0</defense>
+      <power>4</power>
+      <xp>30</xp>
+      <description>
+         Small rodent-like canines, wild varch can be found in less-reputable spaceports everywhere. Although a lone varch is not usually a threat they are known to hunt in packs which can kill an unprepared person.
+      </description>
+   </mob>
+</mobs>
