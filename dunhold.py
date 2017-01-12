@@ -1,6 +1,6 @@
 #!/usr/bin/python
-#!/usr/bin/env python
-#!python
+# !/usr/bin/env python
+# !python
 #
 # libtcod python tutorial
 #
@@ -8,6 +8,13 @@ import sys
 
 from src.utilityClasses import QuitException
 from src.engine import Controller
+
+try:
+    controller = Controller()
+    controller.initialize_game()
+except QuitException:
+    sys.exit()
+
 '''
 class BasicMonster:
     #AI for a basic monster.
@@ -449,8 +456,3 @@ def next_level():
     make_map()  #create a fresh new level!
     initialize_fov()
 '''
-try:
-   controller = Controller()
-   controller.initialize_game()
-except QuitException:
-   sys.exit()

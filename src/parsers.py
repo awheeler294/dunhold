@@ -11,7 +11,7 @@ class MobData(Parser):
       Parser.__init__(filename)
       self._parse()
 
-   def _parse():
+   def _parse(self):
       self.data = []
       #TODO add error checking!
       for mob in self.root:
