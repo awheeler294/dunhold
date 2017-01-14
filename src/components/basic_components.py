@@ -2,34 +2,38 @@ from component import Component
 from src.utilityClasses import *
 from src.defaultConstants import *
 
+
 class MobilityComponent(Component):
-   """Movement functions"""
-   def __init__(self, owner):
-      Component.__init__(self, owner)
 
-   def move(self, dx, dy):
-      #move by the given amount
-      self.owner.x += dx
-      self.owner.y += dy
+    """Movement functions"""
+    def __init__(self, owner):
+        Component.__init__(self, owner)
 
-   def move_towards(self, target_x, target_y):
-      dx = target_x - self.owner.x
-      dy = target_y - self.owner.y
-      distance_to_position = math.sqrt(dx ** 2 + dy ** 2)
+    def move(self, dx, dy):
+        # move by the given amount
+        self.owner.x += dx
+        self.owner.y += dy
 
-      #vector from this object to the target, and distance
-      #normalize it to length 1 (preserving direction), then round it and
-      #convert to integer so the movement is restricted to the map grid
-      dx = int(round(dx / distance))
-      dy = int(round(dy / distance))
-      self.move(dx, dy)
+    def move_towards(self, target_x, target_y):
+        dx = target_x - self.owner.x
+        dy = target_y - self.owner.y
+        distance_to_position = math.sqrt(dx ** 2 + dy ** 2)
+
+        # vector from this object to the target, and distance
+        # normalize it to length 1 (preserving direction), then round it and
+        # convert to integer so the movement is restricted to the map grid
+        dx = int(round(dx / distance_to_position))
+        dy = int(round(dy / distance_to_position))
+        self.move(dx, dy)
 
 
 class PlayerComponent(Component):
-   def __init__(self, owner, hp, defense, power, xp, death_function=None):
-      Component.__init__(self, owner)
-      owner.mobComponent = MobComponent(owner, hp, defense, power, xp, death_function, fov_light_walls = FOV_LIGHT_WALLS, is_hostile = False)
-      owner.always_visible = True
+    def __init__(self, owner, hp, defense, power, xp, death_function=None):
+        Component.__init__(self, owner)
+        owner.mobComponent = MobComponent(owner, hp, defense, power, xp, death_function,
+                                          fov_light_walls=False,
+                                          is_hostile=False)
+        owner.always_visible = True
 
 
 class MobComponent(Component):
@@ -121,7 +125,7 @@ class MobComponent(Component):
       self.fov_map = create_fov_map(mapHeight, mapWidth, levelMap)
 
    def recompute_fov(self, mapHeight, mapWidth):
-      #recompute FOV fov_map, x, y, seightRadius, fov_light_walls
+      # recompute FOV fov_map, x, y, seightRadius, fov_light_walls
       compute_fov(self.fov_map, self.owner.x, self.owner.y, self.owner.seightRadius, self._fovLightWalls)
       self.fov_recompute = False
 
@@ -137,7 +141,7 @@ class InventoryComponent(Component):
 
 
 class CombatComponent(Component):
-      #combat-related properties and methods (monster, player, NPC).
+      # combat-related properties and methods (monster, player, NPC).
       def __init__(self, owner, hp, defense, power, xp, death_function=None):
          Component.__init__(self, owner)
          self.base_max_hp = hp
@@ -148,26 +152,26 @@ class CombatComponent(Component):
          self.death_function = death_function
 
       @property
-      def power(self):  #return actual power, by summing up the bonuses from all equipped items
+      def power(self):  # return actual power, by summing up the bonuses from all equipped items
          bonus = sum(equipment.power_bonus for equipment in self.get_all_equipped(self.owner))
          return self.base_power + bonus
 
       @property
-      def defense(self):  #return actual defense, by summing up the bonuses from all equipped items
+      def defense(self):  # return actual defense, by summing up the bonuses from all equipped items
          bonus = sum(equipment.defense_bonus for equipment in self.get_all_equipped(self.owner))
          return self.base_defense + bonus
 
       @property
-      def max_hp(self):  #return actual max_hp, by summing up the bonuses from all equipped items
+      def max_hp(self):  # return actual max_hp, by summing up the bonuses from all equipped items
          bonus = sum(equipment.max_hp_bonus for equipment in self.get_all_equipped(self.owner))
          return self.base_max_hp + bonus
 
       def attack(self, target):
-         #a simple formula for attack damage
+         # a simple formula for attack damage
          damage = self.power - target.fighter.defense
 
          if damage > 0:
-            #make the target take some damage
+            # make the target take some damage
             message = self.owner.name.capitalize() + ' attacks ' + target.name + ' for ' + str(damage) + ' hit points.'
             target.fighter.take_damage(damage)
          else:
@@ -176,26 +180,26 @@ class CombatComponent(Component):
          return message
 
       def take_damage(self, damage):
-         #apply damage if possible
+         # apply damage if possible
          if damage > 0:
             self.hp -= damage
 
-            #check for death. if there's a death function, call it
+            # check for death. if there's a death function, call it
             if self.hp <= 0:
                function = self.death_function
                if function is not None:
                   function(self.owner)
 
-               if self.owner != player:  #yield experience to the player
+               if self.owner != player:  # yield experience to the player
                   player.fighter.xp += self.xp
 
       def heal(self, amount):
-         #heal by the given amount, without going over the maximum
+         # heal by the given amount, without going over the maximum
          self.hp += amount
          if self.hp > self.max_hp:
             self.hp = self.max_hp
 
-      def get_all_equipped(self, obj):  #returns a list of equipped items
+      def get_all_equipped(self, obj):  # returns a list of equipped items
          if hasattr(obj, "inventoryComponent"):
             inventory = obj.inventoryComponent.inventory
             equipped_list = []
@@ -204,7 +208,7 @@ class CombatComponent(Component):
                   equipped_list.append(item.equipment)
             return equipped_list
          else:
-            return []  #other objects have no equipment
+            return []  # other objects have no equipment
 
 
 class TileComponent(Component):
@@ -212,7 +216,7 @@ class TileComponent(Component):
    def __init__(self, owner, blocked, block_sight = None):
       Component.__init__(self, owner)
 
-      #by default, if a tile is blocked, it also blocks sight
+      # by default, if a tile is blocked, it also blocks sight
       if block_sight is None: block_sight = blocked
       self.block_sight = block_sight
 
@@ -221,7 +225,7 @@ class TileComponent(Component):
 
       owner.is_terrain = True
 
-      #all tiles start unexplored
+      # all tiles start unexplored
       self.explored = False
 
 

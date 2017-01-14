@@ -8,17 +8,42 @@ from defaultConstants import *
 
 
 class View:
+    FOV_ALGO = 0
+    FOV_LIGHT_WALLS = False
+    LIMIT_FPS = 60
+
+    FULLSCREEN = True
+
+    FONT = 'fonts/dejavu16x16_gs_tc.png'
+    FONT_WIDTH = 16
+    FONT_HEIGHT = 16
+
+    SCREEN_OFFSET = 1
+
     def __init__(self):
-        # libtcod.console_set_custom_font('fonts/arial12x12.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_set_custom_font('fonts/consolas12x12_gs_tc.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-        libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'python/libtcod tutorial', False)
-        libtcod.sys_set_fps(LIMIT_FPS)
+        screen_width_px, screen_height_px = libtcod.sys_get_current_resolution()
+
+        libtcod.console_set_custom_font(self.FONT, libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+        # font_size_width, font_size_height = libtcod.sys_get_char_size()
+
+        self.screen_width = (screen_width_px / self.FONT_WIDTH) - self.SCREEN_OFFSET - 1
+        self.screen_height = (screen_height_px / self.FONT_HEIGHT) - self.SCREEN_OFFSET
+
+        libtcod.console_init_root(self.screen_width + self.SCREEN_OFFSET, self.screen_height + self.SCREEN_OFFSET,
+                                  'Dunhold Station',
+                                  self.FULLSCREEN)
+
+        libtcod.sys_set_fps(self.LIMIT_FPS)
+
+        # self.debug_print_centering_marks(step=2,
+        #                                  min_x=self.SCREEN_OFFSET, min_y=self.SCREEN_OFFSET,
+        #                                  max_x=self.screen_width, max_y=self.screen_height)
 
         self._con = libtcod.console_new(MAP_WIDTH, MAP_HEIGHT)
-        self._bottomPanel = libtcod.console_new(SCREEN_WIDTH, PANEL_HEIGHT)
+        self._bottomPanel = libtcod.console_new(self.screen_width, PANEL_HEIGHT)
 
-        self._fovLightWalls = FOV_LIGHT_WALLS
-        self._fovAlgorithm = FOV_ALGO
+        self._fovLightWalls = self.FOV_LIGHT_WALLS
+        self._fovAlgorithm = self.FOV_ALGO
 
         libtcod.console_clear(self._con)  # unexplored areas start black (which is the default background color)
 
@@ -34,19 +59,92 @@ class View:
     def fov_map(self, value):
         self._fov_map = value
 
+    @property
+    def screen_width(self):
+        return self._screen_width
+
+    @screen_width.setter
+    def screen_width(self, width):
+        self._screen_width = width
+
+    @property
+    def screen_height(self):
+        return self._screen_height
+
+    @screen_height.setter
+    def screen_height(self, height):
+        self._screen_height = height
+
+    @staticmethod
+    def debug_print_centering_marks(console=0, mark='*', step=1, min_x=0, min_y=0, max_x=0, max_y=0):
+        for x in range(0, max_x, step):
+
+            libtcod.console_print(console,
+                                  min_x + x, min_y + x,
+                                  mark)
+            libtcod.console_print(console,
+                                  max_x - x, min_y + x,
+                                  mark)
+
+            libtcod.console_print(console,
+                                  max_x - x, max_y - x,
+                                  mark)
+            libtcod.console_print(console,
+                                  min_x + x, max_y - x,
+                                  mark)
+
+        libtcod.console_flush()
+
     def main_menu(self):
-        # img = libtcod.image_load('menu_background.png')
-        img = libtcod.image_load('spacestation3.png')
+        main_menu_width = SCREEN_WIDTH
+        main_menu_height = self.screen_height
+
+        mm_center_x = main_menu_width / 2
+        mm_center_y = main_menu_height / 2
+
+        main_menu_x = (self.screen_width / 2) - mm_center_x
+        main_menu_y = (self.screen_height / 2) - mm_center_y
+
+        background_img = libtcod.image_load('spacestation3.png')
+        bg_img_size = libtcod.image_get_size(background_img)
+
+        bg_img_width = bg_img_size[0] / self.FONT_WIDTH
+        bg_img_height = bg_img_size[1] / self.FONT_HEIGHT
+
+        bg_image_center_x = bg_img_width / 2
+        bg_image_center_y = bg_img_height / 2
+
+        bg_image_x = bg_image_center_x
+        bg_image_y = bg_image_center_y
+
+        main_menu = libtcod.console_new(main_menu_width, main_menu_height)
 
         while not is_window_closed():
             # show the background image, at twice the regular console resolution
-            libtcod.image_blit_2x(img, 0, 0, 0)
+            libtcod.image_blit_2x(background_img, main_menu, bg_image_x, bg_image_y)
 
             # show the game's title, and some credits!
-            libtcod.console_set_default_foreground(0, libtcod.light_yellow)
-            libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2-4, libtcod.BKGND_NONE, libtcod.CENTER,
-                                     'DUNHOLD STATION')
-            libtcod.console_print_ex(0, SCREEN_WIDTH/2, SCREEN_HEIGHT-2, libtcod.BKGND_NONE, libtcod.CENTER, 'By Andrew Wheeler')
+            libtcod.console_set_default_foreground(main_menu, libtcod.light_yellow)
+
+            libtcod.console_print_ex(main_menu,
+                                     mm_center_x, mm_center_y - 8,
+                                     libtcod.BKGND_NONE, libtcod.CENTER, 'DUNHOLD STATION')
+
+            libtcod.console_print_ex(main_menu,
+                                     mm_center_x, mm_center_y + 10,
+                                     libtcod.BKGND_NONE, libtcod.CENTER, 'By Andrew Wheeler')
+
+            # self.debug_print_centering_marks(main_menu,
+            #                                  step=1,
+            #                                  min_x=0, min_y=0,
+            #                                  max_x=main_menu_width, max_y=main_menu_height)
+
+            libtcod.console_blit(main_menu,
+                                 0, 0,
+                                 0, 0,
+                                 0,
+                                 main_menu_x, main_menu_y,
+                                 1.0, 1.0)
 
             # show options and wait for the player's choice
             options = [('n', 'Play a new game'), ('c', 'Continue last game'), ('q', 'Quit')]
@@ -60,12 +158,13 @@ class View:
            @param options: list of menu options to display containing the index and option pairs as tuples
            @param width: integer width of the menu"""
 
-        if len(options) > 26: raise ValueError('Cannot have a menu with more than 26 options.')
+        if len(options) > 26:
+            raise ValueError('Cannot have a menu with more than 26 options.')
 
         indexes = []
 
         # calculate total height for the header (after auto-wrap) and one line per option
-        header_height = libtcod.console_get_height_rect(self._con, 0, 0, width, SCREEN_HEIGHT, header)
+        header_height = libtcod.console_get_height_rect(self._con, 0, 0, width, self.screen_height, header)
         if header == '':
             header_height = 0
         height = len(options) + header_height
@@ -75,7 +174,11 @@ class View:
 
         # print the header, with auto-wrap
         libtcod.console_set_default_foreground(window, libtcod.white)
-        libtcod.console_print_rect_ex(window, 0, 0, width, height, libtcod.BKGND_NONE, libtcod.LEFT, header)
+        libtcod.console_print_rect_ex(window,
+                                      0, 0,
+                                      width, height,
+                                      libtcod.BKGND_NONE, libtcod.LEFT,
+                                      header)
 
         # print all the options
         y = header_height
@@ -86,9 +189,14 @@ class View:
             y += 1
 
         # blit the contents of "window" to the root console
-        x = SCREEN_WIDTH/2 - width/2
-        y = SCREEN_HEIGHT/2 - height/2
-        libtcod.console_blit(window, 0, 0, width, height, 0, x, y, 1.0, 0.7)
+        x = (self.screen_width / 2) - (width / 2)
+        y = (self.screen_height / 2) - (height / 2)
+        libtcod.console_blit(window,
+                             0, 0,
+                             0, 0,
+                             0,
+                             x, y,
+                             1.0, 0.7)
 
         # present the root console to the player and wait for a key-press
         libtcod.console_flush()
@@ -117,7 +225,12 @@ class View:
         self.draw_object(player, self._fov_map, level_map)
 
         # blit the contents of "con" to the root console
-        libtcod.console_blit(self._con, 0, 0, MAP_WIDTH, MAP_HEIGHT, 0, 0, 0)
+        libtcod.console_blit(self._con,
+                             0, 0,
+                             MAP_WIDTH, MAP_HEIGHT,
+                             0,
+                             10, 10,
+                             0.5)
 
         # prepare to render the GUI panel
         libtcod.console_set_default_background(self._bottomPanel, libtcod.black)
@@ -131,7 +244,8 @@ class View:
            y += 1
         '''
         # show the player's stats
-        self.render_bar(self._bottomPanel, 1, 1, BAR_WIDTH, 'HP', player.combatComponent.hp, player.combatComponent.max_hp,
+        self.render_bar(self._bottomPanel, 1, 1, BAR_WIDTH, 'HP', player.combatComponent.hp,
+                        player.combatComponent.max_hp,
                         libtcod.light_red, libtcod.darker_red)
         libtcod.console_print_ex(self._bottomPanel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, str(current_level.name))
         '''
@@ -171,7 +285,8 @@ class View:
                 if not visible:
                     # if it's not visible right now, the player can only see it if it's explored
                     if level_map[x][y].explored:
-                        libtcod.console_set_char_background(self._con, x, y, level_map[x][y].dark_color, libtcod.BKGND_SET)
+                        libtcod.console_set_char_background(self._con, x, y, level_map[x][y].dark_color,
+                                                            libtcod.BKGND_SET)
                 else:
                     # it's visible
                     libtcod.console_set_char_background(self._con, x, y, level_map[x][y].tile_color, libtcod.BKGND_SET)
@@ -210,7 +325,6 @@ class View:
 
 
 class Controller:
-
     def __init__(self):
         self.initialize_game()
 
@@ -273,7 +387,8 @@ class Controller:
 
             if player.mobComponent.fov_recompute:
                 player.mobComponent.recompute_fov(current_level.mapHeight, current_level.mapWidth)
-                self._view.fov_redraw(player.mobComponent.fov_map, current_level.mapHeight, current_level.mapWidth, current_level.map)
+                self._view.fov_redraw(player.mobComponent.fov_map, current_level.mapHeight, current_level.mapWidth,
+                                      current_level.map)
 
             current_level = self._model.current_level
             self._view.render_all(current_level, player, mouse)
@@ -435,7 +550,7 @@ class Controller:
         new_moves = self._model.get_possible_moves(mob)
         elbow_moves = self._model.is_elbow(mob)
         if elbow_moves is not False:
-            assert(len(elbow_moves) == 2), ""
+            assert (len(elbow_moves) == 2), ""
             back_dx = dx * -1
             back_dy = dy * -1
             move1, move2 = elbow_moves
@@ -487,8 +602,9 @@ class Model:
         self._levels.append(new_level)
         self._currentLevel = new_level
 
-        self._player = GameObject(new_level.levelEntrance.x, new_level.levelEntrance.y, '@', 'player', libtcod.yellow, blocks=True)
-        self._player.playerComponent = PlayerComponent(self._player, 100, 0, 2, 0, death_function = None)
+        self._player = GameObject(new_level.levelEntrance.x, new_level.levelEntrance.y, '@', 'player', libtcod.yellow,
+                                  blocks=True)
+        self._player.playerComponent = PlayerComponent(self._player, 100, 0, 2, 0, death_function=None)
 
         # <PLACEHOLDER>
         self._player.seightRadius = SEIGHT_RADIUS
@@ -569,13 +685,13 @@ class Model:
     def is_elbow(self, mob):
         # determine if location is part of an elbow turn
         ############# ############# ############# #############
-        #...........# #...........# #...........# #...........#
-        #..#######..# #..#.#......# #..#######..# #......#.#..#
-        #..#@.......# #..#.#......# #.......@#..# #......#.#..#
-        #..#.#####..# #..#.#####..# #..#####.#..# #..#####.#..#
-        #..#.#......# #..#@.......# #......#.#..# #.......@#..#
-        #..#.#......# #..#######..# #......#.#..# #..#######..#
-        #...........# #...........# #...........# #...........#
+        # ...........# #...........# #...........# #...........#
+        # ..#######..# #..#.#......# #..#######..# #......#.#..#
+        # ..#@.......# #..#.#......# #.......@#..# #......#.#..#
+        # ..#.#####..# #..#.#####..# #..#####.#..# #..#####.#..#
+        # ..#.#......# #..#@.......# #......#.#..# #.......@#..#
+        # ..#.#......# #..#######..# #......#.#..# #..#######..#
+        # ...........# #...........# #...........# #...........#
         ############# ############# ############# #############
 
         possible_moves = self.get_possible_moves(mob)

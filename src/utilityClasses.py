@@ -24,8 +24,8 @@ def create_fov_map(mapHeight, mapWidth, levelMap):
 
     return fov_map
 
-def compute_fov(fov_map, x, y, seightRadius, fov_light_walls):
-    libtcod.map_compute_fov(fov_map, x, y, seightRadius, fov_light_walls, FOV_ALGO)
+def compute_fov(fov_map, x, y, seightRadius, fov_light_walls, fov_algo = 0):
+    libtcod.map_compute_fov(fov_map, x, y, seightRadius, fov_light_walls, fov_algo)
 
 def make_alphabetical_index(options):
     indexed = []
