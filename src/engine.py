@@ -150,6 +150,7 @@ class View:
             options = [('n', 'Play a new game'), ('c', 'Continue last game'), ('q', 'Quit')]
             selection = self.menu('', options, 24)
             if selection == 'n' or selection == 'c' or selection == 'q':
+                libtcod.console_clear(0)
                 return selection
 
     def menu(self, header, options, width):
